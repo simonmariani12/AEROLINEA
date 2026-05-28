@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aerolíneas Mariani</title>
+  <style>
+    :root {
+      --navy: #071a33;
+      --blue: #0f3a68;
+      --sky: #e9f5ff;
+      --line: #d7e2ee;
+      --white: #ffffff;
+      --ink: #122034;
+      --muted: #617187;
+      --gold: #d8a935;
+      --green: #16824d;
+      --shadow: 0 18px 40px rgba(7, 26, 51, 0.14);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f4f8fc;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(7, 26, 51, 0.97);
+      color: var(--white);
+      box-shadow: 0 10px 30px rgba(7, 26, 51, 0.22);
+    }
+
+    .nav-shell {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: min(1160px, calc(100% - 32px));
+      min-height: 72px;
+      margin: 0 auto;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      flex: 0 0 44px;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffffff, #bce2ff);
+      color: var(--navy);
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .brand-name {
+      display: block;
+      font-size: 1rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .brand-url {
+      display: block;
+      max-width: 220px;
+      overflow: hidden;
+      color: #b8c8da;
+      font-size: 0.74rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .hamburger {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--white);
+      cursor: pointer;
+    }
+
+    .hamburger span,
+    .hamburger span::before,
+    .hamburger span::after {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: currentColor;
+      content: "";
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .hamburger span::before {
+      transform: translateY(-7px);
+    }
+
+    .hamburger span::after {
+      transform: translateY(5px);
+    }
+
+    .hamburger[aria-expanded="true"] span {
+      transform: rotate(45deg);
+    }
+
+    .hamburger[aria-expanded="true"] span::before {
+      opacity: 0;
+    }
+
+    .hamburger[aria-expanded="true"] span::after {
+      transform: translateY(-2px) rotate(-90deg);
+    }
+
+    .nav-links {
+      position: fixed;
+      inset: 72px 0 auto 0;
+      display: grid;
+      gap: 6px;
+      padding: 16px;
+      background: var(--navy);
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      transform: translateY(-120%);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+
+    .nav-links.open {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .nav-link,
+    .logout {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      border-radius: var(--radius);
+      padding: 8px 12px;
+      color: #dce9f7;
+      font-weight: 700;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .nav-link.active,
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--white);
+    }
+
+    .logout {
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.06);
+      cursor: pointer;
+    }
+
+    .logout:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .user-chip {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      border-radius: 999px;
+      padding: 7px 12px;
+      background: rgba(216, 169, 53, 0.18);
+      color: #ffe7a6;
+      font-size: 0.86rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    body.logged-in .user-chip {
+      display: inline-flex;
+    }
+
+    body.logged-in .auth-only {
+      display: none;
+    }
+
+    main {
+      min-height: calc(100vh - 72px);
+    }
+
+    .view {
+      display: none;
+      animation: fadeUp 0.35s ease both;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section {
+      width: min(1160px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 42px 0;
+    }
+
+    .hero {
+      overflow: hidden;
+      background: var(--navy);
+      color: var(--white);
+    }
+
+    .hero-inner {
+      display: grid;
+      align-items: center;
+      width: min(1160px, calc(100% - 32px));
+      min-height: 560px;
+      margin: 0 auto;
+      padding: 36px 0 48px;
+      gap: 28px;
+    }
+
+    .hero-copy h1,
+    .page-title {
+      margin: 0;
+      font-size: clamp(2rem, 7vw, 4.8rem);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    .hero-copy p {
+      max-width: 620px;
+      margin: 18px 0 0;
+      color: #d0deed;
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+    }
+
+    .hero-actions,
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      border: 0;
+      border-radius: var(--radius);
+      padding: 12px 18px;
+      background: var(--blue);
+      color: var(--white);
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 22px rgba(7, 26, 51, 0.15);
+    }
+
+    .btn.primary {
+      background: var(--white);
+      color: var(--navy);
+    }
+
+    .btn.gold {
+      background: var(--gold);
+      color: #1b1400;
+    }
+
+    .btn.ghost {
+      border: 1px solid var(--line);
+      background: var(--white);
+      color: var(--blue);
+    }
+
+    .btn.full {
+      width: 100%;
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.68;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .plane-stage {
+      position: relative;
+      min-height: 270px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      background:
+        radial-gradient(circle at 18% 24%, rgba(255, 255, 255, 0.2), transparent 24%),
+        linear-gradient(160deg, #0d3767, #051326 68%);
+      box-shadow: var(--shadow);
+    }
+
+    .plane {
+      position: absolute;
+      inset: 32px 18px auto;
+      width: calc(100% - 36px);
+      max-height: 250px;
+    }
+
+    .route-line {
+      position: absolute;
+      right: 34px;
+      bottom: 30px;
+      left: 34px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+    }
+
+    .promo-grid,
+    .cards-grid,
+    .booking-grid,
+    .search-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .info-card,
+    .payment-card,
+    .booking-card,
+    .profile-card,
+    .search-panel,
+    .promo-banner,
+    .side-menu {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--white);
+      box-shadow: 0 10px 26px rgba(7, 26, 51, 0.07);
+    }
+
+    .info-card,
+    .payment-card,
+    .booking-card,
+    .profile-card,
+    .search-panel,
+    .side-menu {
+      padding: 22px;
+    }
+
+    .section-heading {
+      margin: 0 0 16px;
+      color: var(--navy);
+      font-size: clamp(1.45rem, 4vw, 2.1rem);
+      line-height: 1.1;
+    }
+
+    .small-title {
+      margin: 0 0 6px;
+      color: var(--navy);
+      font-size: 1rem;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .promo-banner {
+      display: grid;
+      align-items: center;
+      overflow: hidden;
+      min-height: 180px;
+      padding: 24px;
+      background: linear-gradient(135deg, #102c52, #08203f);
+      color: var(--white);
+      gap: 18px;
+    }
+
+    .cola-can {
+      display: grid;
+      place-items: center;
+      width: 110px;
+      height: 160px;
+      border-radius: 24px 24px 18px 18px;
+      background: linear-gradient(90deg, #981b22, #e83f45 48%, #7d1218);
+      color: #fff8e7;
+      font-weight: 900;
+      text-align: center;
+      box-shadow: inset -12px 0 22px rgba(0, 0, 0, 0.2), 0 18px 24px rgba(0, 0, 0, 0.24);
+    }
+
+    .layout {
+      display: grid;
+      gap: 18px;
+    }
+
+    .side-menu {
+      align-self: start;
+      padding: 10px;
+    }
+
+    .side-menu a {
+      display: flex;
+      align-items: center;
+      min-height: 42px;
+      border-radius: 6px;
+      padding: 9px 12px;
+      color: var(--blue);
+      font-weight: 800;
+    }
+
+    .side-menu a.active,
+    .side-menu a:hover {
+      background: var(--sky);
+    }
+
+    .profile-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .avatar {
+      display: grid;
+      place-items: center;
+      width: 96px;
+      height: 96px;
+      border: 4px solid #f1d477;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #163f71, #071a33);
+      color: var(--white);
+      font-size: 2rem;
+      font-weight: 900;
+    }
+
+    .gold-pill,
+    .status {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.78rem;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .gold-pill {
+      background: #fff3ca;
+      color: #715000;
+    }
+
+    .status {
+      background: #dcf7e9;
+      color: var(--green);
+    }
+
+    .progress-track {
+      overflow: hidden;
+      height: 14px;
+      border-radius: 999px;
+      background: #dfeaf5;
+    }
+
+    .progress-fill {
+      width: 84.3%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--gold), #ffe08a);
+    }
+
+    .details {
+      display: grid;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .detail {
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+    }
+
+    .detail strong {
+      display: block;
+      color: var(--navy);
+      font-size: 0.86rem;
+    }
+
+    .booking-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .route {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin: 18px 0;
+      color: var(--navy);
+      font-size: clamp(1.45rem, 5vw, 2.4rem);
+      font-weight: 900;
+      line-height: 1.05;
+    }
+
+    .flight-meta {
+      display: grid;
+      gap: 12px;
+    }
+
+    .meta-item {
+      border-left: 3px solid var(--blue);
+      padding-left: 10px;
+    }
+
+    .qr {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      width: 142px;
+      height: 142px;
+      margin-top: 16px;
+      border: 8px solid var(--white);
+      outline: 1px solid var(--line);
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .qr span {
+      background: var(--navy);
+    }
+
+    .recommendations {
+      margin: 20px 0 0;
+      padding-left: 20px;
+    }
+
+    .recommendations li {
+      margin: 8px 0;
+    }
+
+    .trip-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .trip-tab {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--white);
+      color: var(--blue);
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .trip-tab.active {
+      background: var(--blue);
+      color: var(--white);
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    label {
+      display: grid;
+      gap: 7px;
+      color: var(--navy);
+      font-weight: 800;
+    }
+
+    .field {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfdff;
+      padding: 0 12px;
+    }
+
+    .field input {
+      width: 100%;
+      min-height: 46px;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .icon {
+      width: 24px;
+      height: 24px;
+      flex: 0 0 24px;
+      color: var(--blue);
+    }
+
+    .destination-card {
+      min-height: 320px;
+      overflow: hidden;
+      border-radius: var(--radius);
+      background:
+        linear-gradient(180deg, rgba(7, 26, 51, 0.05), rgba(7, 26, 51, 0.72)),
+        linear-gradient(135deg, #79b9d8, #0d3b66 72%);
+      color: var(--white);
+      display: grid;
+      align-items: end;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .guatemala-visual {
+      width: 100%;
+      align-self: center;
+      filter: drop-shadow(0 22px 30px rgba(0, 0, 0, 0.24));
+    }
+
+    .destination-card h3 {
+      margin: 0 0 6px;
+      font-size: clamp(1.6rem, 5vw, 2.6rem);
+    }
+
+    .destination-card p {
+      max-width: 470px;
+      margin: 0;
+      color: #edf6ff;
+    }
+
+    .payment-card {
+      display: grid;
+      gap: 10px;
+    }
+
+    .payment-icon {
+      display: grid;
+      place-items: center;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--sky);
+      color: var(--blue);
+      font-weight: 900;
+    }
+
+    .results-panel,
+    .flight-card,
+    .detail-panel,
+    .summary-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--white);
+      box-shadow: 0 10px 26px rgba(7, 26, 51, 0.07);
+    }
+
+    .results-panel {
+      display: none;
+      margin-top: 22px;
+      padding: 22px;
+    }
+
+    .results-panel.show {
+      display: block;
+    }
+
+    .results-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .flight-card {
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+    }
+
+    .flight-main {
+      display: grid;
+      gap: 10px;
+    }
+
+    .time-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--navy);
+      font-size: clamp(1.3rem, 4vw, 2rem);
+      font-weight: 900;
+      line-height: 1.05;
+    }
+
+    .flight-line {
+      height: 2px;
+      min-width: 54px;
+      flex: 1;
+      background: linear-gradient(90deg, var(--blue), var(--gold));
+    }
+
+    .price {
+      color: var(--navy);
+      font-size: clamp(1.45rem, 5vw, 2.2rem);
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .detail-grid,
+    .auth-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .detail-panel,
+    .summary-card {
+      padding: 22px;
+    }
+
+    .summary-list {
+      display: grid;
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .summary-list div {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+    }
+
+    .auth-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      place-items: center;
+      padding: 18px;
+      background: rgba(7, 26, 51, 0.62);
+    }
+
+    .auth-modal.open {
+      display: grid;
+    }
+
+    .auth-dialog {
+      width: min(460px, 100%);
+      border-radius: var(--radius);
+      background: var(--white);
+      box-shadow: var(--shadow);
+    }
+
+    .auth-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      padding: 18px 20px;
+    }
+
+    .icon-btn {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--white);
+      color: var(--navy);
+      cursor: pointer;
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    .auth-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      padding: 16px 20px 0;
+    }
+
+    .auth-tab {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--white);
+      color: var(--blue);
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    .auth-tab.active {
+      background: var(--blue);
+      color: var(--white);
+    }
+
+    .auth-form {
+      display: none;
+      gap: 14px;
+      padding: 20px;
+    }
+
+    .auth-form.active {
+      display: grid;
+    }
+
+    .form-message {
+      min-height: 22px;
+      color: #a33a18;
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
+    .form-message.success {
+      color: var(--green);
+    }
+
+    .footer {
+      background: var(--navy);
+      color: #c8d7e8;
+    }
+
+    .footer .section {
+      padding: 24px 0;
+    }
+
+    @media (min-width: 720px) {
+      .promo-grid,
+      .cards-grid,
+      .booking-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .promo-banner {
+        grid-template-columns: auto 1fr;
+      }
+
+      .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .flight-meta {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .flight-card {
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        align-items: center;
+      }
+
+      .detail-grid {
+        grid-template-columns: minmax(0, 1fr) 360px;
+        align-items: start;
+      }
+    }
+
+    @media (min-width: 900px) {
+      .hamburger {
+        display: none;
+      }
+
+      .nav-links {
+        position: static;
+        display: flex;
+        align-items: center;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        transform: none;
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .hero-inner {
+        grid-template-columns: minmax(0, 1fr) minmax(380px, 0.92fr);
+      }
+
+      .layout {
+        grid-template-columns: 230px minmax(0, 1fr);
+      }
+
+      .search-grid {
+        grid-template-columns: minmax(0, 1fr) 0.82fr;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="nav-shell">
+      <a class="brand nav-go" href="/" data-route="/">
+        <span class="brand-mark">AM</span>
+        <span>
+          <span class="brand-name">Aerolíneas Mariani</span>
+          <span class="brand-url">aerolineasmariani.www.com.ar</span>
+        </span>
+      </a>
+      <button class="hamburger" type="button" aria-label="Abrir menú" aria-expanded="false">
+        <span></span>
+      </button>
+      <nav class="nav-links" aria-label="Navegación principal">
+        <a class="nav-link nav-go" href="/" data-route="/">Inicio</a>
+        <a class="nav-link nav-go" href="/perfil" data-route="/perfil">Perfil</a>
+        <a class="nav-link nav-go" href="/reservas" data-route="/reservas">Mis Reservas</a>
+        <a class="nav-link nav-go" href="/buscar" data-route="/buscar">Buscar</a>
+        <a class="nav-link nav-go" href="/pagos" data-route="/pagos">Pagos</a>
+        <span class="user-chip" id="userChip">Simón</span>
+        <button class="logout" type="button">Cerrar sesión</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="view" data-view="/">
+      <div class="hero">
+        <div class="hero-inner">
+          <div class="hero-copy">
+            <h1>Aerolíneas Mariani</h1>
+            <p>Conectamos Argentina y América Latina con una experiencia simple, clara y profesional desde la reserva hasta el embarque.</p>
+            <div class="hero-actions">
+              <a class="btn primary nav-go" href="/buscar" data-route="/buscar">Buscar Vuelos</a>
+              <a class="btn gold nav-go" href="/perfil" data-route="/perfil">Mi Cuenta</a>
+            </div>
+          </div>
+          <div class="plane-stage" aria-label="Avión de Aerolíneas Mariani">
+            <svg class="plane" viewBox="0 0 720 320" role="img" aria-labelledby="planeTitle">
+              <title id="planeTitle">Avión decorativo</title>
+              <path d="M67 195 C198 166 348 123 620 102 C657 99 687 118 696 145 C542 175 368 211 174 244 L78 292 L38 278 L110 224 L67 195 Z" fill="#ffffff"/>
+              <path d="M220 168 L365 36 L416 45 L325 157 Z" fill="#cfe8ff"/>
+              <path d="M356 199 L505 285 L446 295 L286 216 Z" fill="#cfe8ff"/>
+              <path d="M568 110 L633 42 L674 47 L643 119 Z" fill="#ffffff"/>
+              <path d="M107 194 C228 169 394 129 652 111" fill="none" stroke="#0f3a68" stroke-width="9" stroke-linecap="round"/>
+              <circle cx="216" cy="184" r="10" fill="#d8a935"/>
+              <circle cx="269" cy="173" r="10" fill="#d8a935"/>
+              <circle cx="322" cy="162" r="10" fill="#d8a935"/>
+            </svg>
+            <div class="route-line"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="promo-grid">
+          <article class="info-card">
+            <h2 class="section-heading">Métodos de Pago</h2>
+            <p>Aceptamos BBVA y tarjetas Visa, Mastercard y otras opciones nacionales e internacionales.</p>
+            <p><strong>Hasta 12 cuotas sin interés</strong> para que vueles cuando quieras.</p>
+          </article>
+          <article class="info-card">
+            <h2 class="section-heading">Acceso rápido</h2>
+            <div class="action-row">
+              <button class="btn auth-only auth-open" type="button" data-auth-mode="login">Iniciar Sesión</button>
+              <button class="btn ghost auth-only auth-open" type="button" data-auth-mode="register">Registrarse</button>
+              <a class="btn gold nav-go" href="/perfil" data-route="/perfil">Ver mi perfil</a>
+            </div>
+          </article>
+          <article class="promo-banner">
+            <div class="cola-can">Wilkin<br>Cola</div>
+            <div>
+              <h2 class="section-heading" style="color:#fff;">Wilkin Cola</h2>
+              <p>El sabor que te reserva</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" data-view="/perfil">
+      <div class="section layout">
+        <aside class="side-menu" aria-label="Menú de cuenta">
+          <a class="active nav-go" href="/perfil" data-route="/perfil">Perfil</a>
+          <a class="nav-go" href="/reservas" data-route="/reservas">Mis Reservas</a>
+          <a href="#millas">Mis Millas</a>
+          <a class="nav-go" href="/pagos" data-route="/pagos">Métodos de Pago</a>
+        </aside>
+        <article class="profile-card">
+          <div class="profile-head">
+            <div class="avatar">SM</div>
+            <div>
+              <span class="gold-pill">Gold Member</span>
+              <h1 class="section-heading" style="margin-top:10px;">Simón Mariani</h1>
+              <p class="muted">Miembro desde 2040</p>
+            </div>
+          </div>
+
+          <section id="millas">
+            <h2 class="small-title">Millas acumuladas: 40.450</h2>
+            <p class="muted">Próximo nivel: Platinum. Faltan 7.550 millas.</p>
+            <div class="progress-track" aria-label="Progreso a Platinum">
+              <div class="progress-fill"></div>
+            </div>
+          </section>
+
+          <div class="details">
+            <div class="detail"><strong>Fecha de nacimiento</strong>12 de marzo de 2010</div>
+            <div class="detail"><strong>Pasaporte</strong>XX42345Z</div>
+            <div class="detail"><strong>Nacionalidad</strong>Argentina</div>
+            <div class="detail"><strong>Dirección</strong>Calle 145 entre 47 y 48 número 1449</div>
+            <div class="detail"><strong>Contacto de emergencia</strong>Lola Mariani, +54 9 11 6765 1321</div>
+          </div>
+          <div class="action-row">
+            <button class="btn gold" type="button">Editar Perfil</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="view" data-view="/reservas">
+      <div class="section">
+        <h1 class="page-title">Mis Reservas</h1>
+        <div class="booking-card" style="margin-top:24px;">
+          <div class="booking-top">
+            <div>
+              <p class="muted">Código de reserva</p>
+              <h2 class="section-heading">ABC123E</h2>
+            </div>
+            <span class="status">Confirmado</span>
+          </div>
+
+          <div class="route">
+            <span>Buenos Aires</span>
+            <span aria-hidden="true">→</span>
+            <span>Bariloche</span>
+          </div>
+
+          <div class="booking-grid">
+            <div class="flight-meta">
+              <div class="meta-item"><strong>Vuelo</strong><br>AR 1233</div>
+              <div class="meta-item"><strong>Fecha y hora</strong><br>19 Nov 2026, 14:35</div>
+              <div class="meta-item"><strong>Pasajero</strong><br>Simón Mariani</div>
+              <div class="meta-item"><strong>Asiento</strong><br>12A</div>
+              <div class="meta-item"><strong>Terminal / puerta</strong><br>7A - Libertad</div>
+              <div class="meta-item"><strong>Equipaje</strong><br>1 de mano incluido + 1 para despachar (23 kg)</div>
+            </div>
+            <div>
+              <h3 class="small-title">QR de embarque</h3>
+              <div class="qr" aria-label="QR simulado">
+                <span></span><i></i><span></span><span></span><i></i><span></span><i></i>
+                <span></span><span></span><i></i><span></span><i></i><span></span><span></span>
+                <i></i><span></span><span></span><i></i><span></span><i></i><span></span>
+                <span></span><i></i><span></span><span></span><span></span><i></i><i></i>
+                <i></i><span></span><i></i><span></span><i></i><span></span><span></span>
+                <span></span><i></i><span></span><i></i><span></span><span></span><i></i>
+                <i></i><span></span><span></span><i></i><i></i><span></span><span></span>
+              </div>
+            </div>
+            <div>
+              <h3 class="small-title">Acciones</h3>
+              <div class="action-row" style="margin-top:12px;">
+                <button class="btn" type="button">Descargar PDF</button>
+                <button class="btn ghost" type="button">Guardar en el celular</button>
+                <button class="btn ghost" type="button">Enviar por mail</button>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="section-heading" style="margin-top:28px;">Recomendaciones</h3>
+          <ul class="recommendations">
+            <li>Llegar 2 horas antes.</li>
+            <li>Presentarse en la puerta de embarque indicada.</li>
+            <li>Revisar el estado del vuelo.</li>
+            <li>No olvidar DNI o pasaporte.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" data-view="/buscar">
+      <div class="section">
+        <h1 class="page-title">Volá en cuotas — 12 sin interés</h1>
+        <div class="search-grid" style="margin-top:24px;">
+          <form class="search-panel">
+            <div class="trip-tabs" role="tablist" aria-label="Tipo de viaje">
+              <button class="trip-tab active" type="button">Ida</button>
+              <button class="trip-tab" type="button">Ida y vuelta</button>
+              <button class="trip-tab" type="button">Multidestinos</button>
+            </div>
+            <div class="form-grid">
+              <label>
+                Origen
+                <span class="field">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 16l18-7-2-3-8 4-5-4-2 1 4 6-4 2-2-2-1 1 2 2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                  <input id="originInput" value="Buenos Aires" />
+                </span>
+              </label>
+              <label>
+                Destino
+                <span class="field">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 16L3 9l2-3 8 4 5-4 2 1-4 6 4 2 2-2 1 1-2 2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                  <input id="destinationInput" placeholder="Elegí tu destino" value="Bariloche" />
+                </span>
+              </label>
+              <label>
+                Fecha de salida
+                <span class="field"><input id="departureInput" type="date" value="2026-11-19" /></span>
+              </label>
+              <label>
+                Fecha de regreso
+                <span class="field"><input id="returnInput" type="date" /></span>
+              </label>
+            </div>
+            <div class="action-row">
+              <button class="btn gold" type="submit">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M7 15V9l3 4 3-4v6M16 15V9h2a2 2 0 0 1 0 4h-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Buscar con Macro
+              </button>
+            </div>
+          </form>
+          <aside class="destination-card">
+            <svg class="guatemala-visual" viewBox="0 0 520 220" role="img" aria-labelledby="guatemalaTitle">
+              <title id="guatemalaTitle">Volcanes y templo de Guatemala</title>
+              <path d="M0 160 C70 112 114 78 166 114 C205 141 226 142 265 101 C312 50 366 80 520 151 L520 220 L0 220 Z" fill="#133d2e"/>
+              <path d="M152 120 L205 42 L261 120 Z" fill="#174d38"/>
+              <path d="M202 46 L221 72 L188 72 Z" fill="#eaf6ff"/>
+              <path d="M312 130 L374 35 L450 130 Z" fill="#1e6546"/>
+              <path d="M371 38 L396 70 L350 70 Z" fill="#f2fbff"/>
+              <path d="M60 165 H174 L151 118 H84 Z" fill="#d8a935"/>
+              <path d="M92 130 H141 L128 103 H104 Z" fill="#ffe28a"/>
+              <path d="M110 165 V141 H128 V165 Z" fill="#071a33"/>
+            </svg>
+            <div>
+              <h3>Guatemala</h3>
+              <p>Destino destacado para descubrir volcanes, cultura maya y ciudades coloniales con financiación en cuotas.</p>
+            </div>
+          </aside>
+        </div>
+        <section class="results-panel" id="resultsPanel" aria-live="polite">
+          <h2 class="section-heading">Vuelos disponibles</h2>
+          <p class="muted" id="resultsIntro">Elegí una tarifa para ver el detalle antes de reservar.</p>
+          <div class="results-list" id="resultsList"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="view" data-view="/detalle">
+      <div class="section">
+        <button class="btn ghost nav-go" type="button" data-route="/buscar">Volver a resultados</button>
+        <h1 class="page-title" style="margin-top:22px;">Detalle del vuelo</h1>
+        <div class="detail-grid" style="margin-top:24px;">
+          <article class="detail-panel" id="flightDetail">
+            <p class="muted">Seleccioná un vuelo desde la búsqueda para ver la información completa.</p>
+          </article>
+          <aside class="summary-card" id="bookingSummary">
+            <h2 class="section-heading">Resumen</h2>
+            <p class="muted">El precio final y las cuotas aparecerán al elegir un vuelo.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" data-view="/pagos">
+      <div class="section">
+        <h1 class="page-title">Métodos de Pago</h1>
+        <div class="cards-grid" style="margin-top:24px;">
+          <article class="payment-card">
+            <div class="payment-icon">BBVA</div>
+            <h2 class="section-heading">BBVA</h2>
+            <p>Hasta 12 cuotas sin interés en vuelos seleccionados de Aerolíneas Mariani.</p>
+          </article>
+          <article class="payment-card">
+            <div class="payment-icon">M</div>
+            <h2 class="section-heading">Macro</h2>
+            <p>Banco asociado para vuelos en cuotas, promociones especiales y beneficios por temporada.</p>
+          </article>
+          <article class="payment-card">
+            <div class="payment-icon">VISA</div>
+            <h2 class="section-heading">Tarjetas</h2>
+            <p>Visa, Mastercard y otras tarjetas nacionales e internacionales para compras simples y seguras.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="section">
+      Aerolíneas Mariani · aerolineasmariani.www.com.ar
+    </div>
+  </footer>
+
+  <div class="auth-modal" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <div class="auth-dialog">
+      <div class="auth-head">
+        <div>
+          <h2 class="small-title" id="authTitle">Acceso a mi cuenta</h2>
+          <p class="muted" style="margin:4px 0 0;">Gestioná reservas, millas y pagos.</p>
+        </div>
+        <button class="icon-btn" id="closeAuth" type="button" aria-label="Cerrar">×</button>
+      </div>
+      <div class="auth-tabs" role="tablist" aria-label="Acceso">
+        <button class="auth-tab active" type="button" data-auth-tab="login">Iniciar sesión</button>
+        <button class="auth-tab" type="button" data-auth-tab="register">Registrarse</button>
+      </div>
+      <form class="auth-form active" id="loginForm">
+        <label>
+          Email
+          <span class="field"><input id="loginEmail" type="email" placeholder="simon@mariani.com" /></span>
+        </label>
+        <label>
+          Contraseña
+          <span class="field"><input id="loginPassword" type="password" placeholder="Mínimo 6 caracteres" /></span>
+        </label>
+        <p class="form-message" id="loginMessage"></p>
+        <button class="btn full" type="submit">Entrar a mi cuenta</button>
+      </form>
+      <form class="auth-form" id="registerForm">
+        <label>
+          Nombre completo
+          <span class="field"><input id="registerName" type="text" placeholder="Simón Mariani" /></span>
+        </label>
+        <label>
+          Email
+          <span class="field"><input id="registerEmail" type="email" placeholder="tu@email.com" /></span>
+        </label>
+        <label>
+          Contraseña
+          <span class="field"><input id="registerPassword" type="password" placeholder="Mínimo 6 caracteres" /></span>
+        </label>
+        <p class="form-message" id="registerMessage"></p>
+        <button class="btn full gold" type="submit">Crear cuenta</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const routes = ["/", "/perfil", "/reservas", "/buscar", "/pagos", "/detalle"];
+    const views = document.querySelectorAll(".view");
+    const navLinks = document.querySelectorAll(".nav-link");
+    const navMenu = document.querySelector(".nav-links");
+    const hamburger = document.querySelector(".hamburger");
+    const resultsPanel = document.querySelector("#resultsPanel");
+    const resultsList = document.querySelector("#resultsList");
+    const resultsIntro = document.querySelector("#resultsIntro");
+    const flightDetail = document.querySelector("#flightDetail");
+    const bookingSummary = document.querySelector("#bookingSummary");
+    const authModal = document.querySelector("#authModal");
+    const userChip = document.querySelector("#userChip");
+    let selectedFlight = null;
+    let currentUser = JSON.parse(localStorage.getItem("amarianiUser") || "null");
+
+    const baseFlights = [
+      {
+        id: "AM-401",
+        number: "AM 401",
+        cabin: "Económica Plus",
+        departure: "08:20",
+        arrival: "10:35",
+        duration: "2 h 15 min",
+        stops: "Directo",
+        aircraft: "Airbus A320 Neo",
+        seat: "12A incluido",
+        baggage: "1 bolso + carry-on + 1 valija de 23 kg",
+        price: 148900,
+        miles: 1860,
+        gate: "7A - Libertad",
+        terminal: "Aeroparque Jorge Newbery"
+      },
+      {
+        id: "AM-733",
+        number: "AM 733",
+        cabin: "Flex",
+        departure: "14:35",
+        arrival: "16:50",
+        duration: "2 h 15 min",
+        stops: "Directo",
+        aircraft: "Boeing 737-800",
+        seat: "Selección estándar incluida",
+        baggage: "1 de mano incluido + 1 para despachar (23 kg)",
+        price: 169500,
+        miles: 2140,
+        gate: "7A - Libertad",
+        terminal: "Aeroparque Jorge Newbery"
+      },
+      {
+        id: "AM-915",
+        number: "AM 915",
+        cabin: "Gold Priority",
+        departure: "20:10",
+        arrival: "22:20",
+        duration: "2 h 10 min",
+        stops: "Directo",
+        aircraft: "Airbus A321",
+        seat: "Filas delanteras",
+        baggage: "Carry-on + 2 valijas de 23 kg",
+        price: 221400,
+        miles: 2900,
+        gate: "9B - Andes",
+        terminal: "Aeroparque Jorge Newbery"
+      }
+    ];
+
+    function normalizeRoute(path) {
+      return routes.includes(path) ? path : "/";
+    }
+
+    function renderRoute(path, replace = false) {
+      const route = normalizeRoute(path);
+      views.forEach((view) => {
+        view.classList.toggle("active", view.dataset.view === route);
+      });
+      navLinks.forEach((link) => {
+        link.classList.toggle("active", link.dataset.route === route);
+      });
+      document.title = route === "/" ? "Aerolíneas Mariani" : `Aerolíneas Mariani | ${route.slice(1)}`;
+      if (replace) {
+        history.replaceState({ route }, "", route);
+      } else if (location.pathname !== route) {
+        history.pushState({ route }, "", route);
+      }
+      closeMenu();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function closeMenu() {
+      navMenu.classList.remove("open");
+      hamburger.setAttribute("aria-expanded", "false");
+    }
+
+    function formatMoney(value) {
+      return new Intl.NumberFormat("es-AR", {
+        style: "currency",
+        currency: "ARS",
+        maximumFractionDigits: 0
+      }).format(value);
+    }
+
+    function updateSession() {
+      document.body.classList.toggle("logged-in", Boolean(currentUser));
+      userChip.textContent = currentUser ? currentUser.name.split(" ")[0] : "Simón";
+      localStorage.setItem("amarianiUser", JSON.stringify(currentUser));
+    }
+
+    function openAuth(mode = "login") {
+      authModal.classList.add("open");
+      setAuthMode(mode);
+      document.querySelector(mode === "login" ? "#loginEmail" : "#registerName").focus();
+    }
+
+    function closeAuth() {
+      authModal.classList.remove("open");
+      document.querySelectorAll(".form-message").forEach((message) => {
+        message.textContent = "";
+        message.classList.remove("success");
+      });
+    }
+
+    function setAuthMode(mode) {
+      document.querySelectorAll(".auth-tab").forEach((tab) => {
+        tab.classList.toggle("active", tab.dataset.authTab === mode);
+      });
+      document.querySelector("#loginForm").classList.toggle("active", mode === "login");
+      document.querySelector("#registerForm").classList.toggle("active", mode === "register");
+    }
+
+    function buildFlights() {
+      const origin = document.querySelector("#originInput").value.trim() || "Buenos Aires";
+      const destination = document.querySelector("#destinationInput").value.trim() || "Bariloche";
+      const departureDate = document.querySelector("#departureInput").value || "2026-11-19";
+      const tripType = document.querySelector(".trip-tab.active").textContent.trim();
+      return baseFlights.map((flight, index) => ({
+        ...flight,
+        origin,
+        destination,
+        departureDate,
+        tripType,
+        code: `${flight.id.replace("-", "")}${index + 2}`
+      }));
+    }
+
+    function renderResults(flights) {
+      resultsPanel.classList.add("show");
+      resultsIntro.textContent = `${flights.length} vuelos encontrados para ${flights[0].origin} → ${flights[0].destination}.`;
+      resultsList.innerHTML = flights.map((flight) => `
+        <article class="flight-card">
+          <div class="flight-main">
+            <p class="muted">${flight.number} · ${flight.cabin} · ${flight.stops}</p>
+            <div class="time-row">
+              <span>${flight.departure}</span>
+              <span class="flight-line" aria-hidden="true"></span>
+              <span>${flight.arrival}</span>
+            </div>
+            <p><strong>${flight.origin}</strong> a <strong>${flight.destination}</strong> · ${flight.duration} · ${flight.aircraft}</p>
+            <p class="muted">${flight.baggage}</p>
+          </div>
+          <div>
+            <div class="price">${formatMoney(flight.price)}</div>
+            <p class="muted">12 cuotas de ${formatMoney(Math.round(flight.price / 12))}</p>
+          </div>
+          <button class="btn gold choose-flight" type="button" data-flight-id="${flight.id}">Ver detalle</button>
+        </article>
+      `).join("");
+      resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function renderDetail(flight) {
+      selectedFlight = flight;
+      flightDetail.innerHTML = `
+        <span class="status">Disponible</span>
+        <h2 class="section-heading" style="margin-top:14px;">${flight.origin} → ${flight.destination}</h2>
+        <div class="route">
+          <span>${flight.departure}</span>
+          <span aria-hidden="true">→</span>
+          <span>${flight.arrival}</span>
+        </div>
+        <div class="flight-meta">
+          <div class="meta-item"><strong>Vuelo</strong><br>${flight.number}</div>
+          <div class="meta-item"><strong>Fecha</strong><br>${flight.departureDate}</div>
+          <div class="meta-item"><strong>Duración</strong><br>${flight.duration}</div>
+          <div class="meta-item"><strong>Avión</strong><br>${flight.aircraft}</div>
+          <div class="meta-item"><strong>Asiento</strong><br>${flight.seat}</div>
+          <div class="meta-item"><strong>Equipaje</strong><br>${flight.baggage}</div>
+          <div class="meta-item"><strong>Terminal</strong><br>${flight.terminal}</div>
+          <div class="meta-item"><strong>Puerta estimada</strong><br>${flight.gate}</div>
+        </div>
+      `;
+      bookingSummary.innerHTML = `
+        <h2 class="section-heading">Resumen</h2>
+        <div class="summary-list">
+          <div><span>Tarifa</span><strong>${flight.cabin}</strong></div>
+          <div><span>Millas a sumar</span><strong>${flight.miles}</strong></div>
+          <div><span>Total</span><strong>${formatMoney(flight.price)}</strong></div>
+          <div><span>BBVA / Macro</span><strong>12 x ${formatMoney(Math.round(flight.price / 12))}</strong></div>
+        </div>
+        <button class="btn gold full" id="confirmBooking" type="button">Reservar vuelo</button>
+        <p class="muted" style="margin-bottom:0;">La reserva se confirmará de forma simulada y quedará lista para revisar en Mis Reservas.</p>
+      `;
+      renderRoute("/detalle");
+    }
+
+    document.addEventListener("click", (event) => {
+      const routeLink = event.target.closest(".nav-go");
+      if (routeLink) {
+        event.preventDefault();
+        renderRoute(routeLink.dataset.route);
+        return;
+      }
+
+      const authButton = event.target.closest(".auth-open");
+      if (authButton) {
+        openAuth(authButton.dataset.authMode);
+        return;
+      }
+
+      const flightButton = event.target.closest(".choose-flight");
+      if (flightButton) {
+        const flight = buildFlights().find((item) => item.id === flightButton.dataset.flightId);
+        renderDetail(flight);
+        return;
+      }
+
+      if (event.target.closest("#confirmBooking")) {
+        if (!currentUser) {
+          openAuth("login");
+          document.querySelector("#loginMessage").textContent = "Iniciá sesión para confirmar la reserva.";
+          return;
+        }
+        const code = selectedFlight.code || "AMR2040";
+        alert(`Reserva ${code} confirmada para ${selectedFlight.destination}.`);
+        renderRoute("/reservas");
+      }
+    });
+
+    hamburger.addEventListener("click", () => {
+      const isOpen = navMenu.classList.toggle("open");
+      hamburger.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    document.querySelectorAll(".trip-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".trip-tab").forEach((item) => item.classList.remove("active"));
+        tab.classList.add("active");
+      });
+    });
+
+    document.querySelector(".search-panel").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const submitButton = event.currentTarget.querySelector(".btn");
+      const originalContent = submitButton.innerHTML;
+      submitButton.textContent = "Buscando vuelos...";
+      submitButton.disabled = true;
+      setTimeout(() => {
+        submitButton.innerHTML = originalContent;
+        submitButton.disabled = false;
+        renderResults(buildFlights());
+      }, 650);
+    });
+
+    document.querySelectorAll(".auth-tab").forEach((tab) => {
+      tab.addEventListener("click", () => setAuthMode(tab.dataset.authTab));
+    });
+
+    document.querySelector("#closeAuth").addEventListener("click", closeAuth);
+
+    authModal.addEventListener("click", (event) => {
+      if (event.target === authModal) {
+        closeAuth();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && authModal.classList.contains("open")) {
+        closeAuth();
+      }
+    });
+
+    document.querySelector("#loginForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const email = document.querySelector("#loginEmail").value.trim();
+      const password = document.querySelector("#loginPassword").value;
+      const message = document.querySelector("#loginMessage");
+      message.classList.remove("success");
+      if (!email.includes("@") || password.length < 6) {
+        message.textContent = "Ingresá un email válido y una contraseña de al menos 6 caracteres.";
+        return;
+      }
+      currentUser = { name: "Simón Mariani", email };
+      updateSession();
+      message.textContent = "Sesión iniciada correctamente.";
+      message.classList.add("success");
+      setTimeout(closeAuth, 700);
+    });
+
+    document.querySelector("#registerForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const name = document.querySelector("#registerName").value.trim();
+      const email = document.querySelector("#registerEmail").value.trim();
+      const password = document.querySelector("#registerPassword").value;
+      const message = document.querySelector("#registerMessage");
+      message.classList.remove("success");
+      if (name.length < 3 || !email.includes("@") || password.length < 6) {
+        message.textContent = "Completá nombre, email válido y contraseña de al menos 6 caracteres.";
+        return;
+      }
+      currentUser = { name, email };
+      updateSession();
+      message.textContent = "Cuenta creada. Ya estás dentro.";
+      message.classList.add("success");
+      setTimeout(closeAuth, 700);
+    });
+
+    document.querySelector(".logout").addEventListener("click", () => {
+      currentUser = null;
+      updateSession();
+      localStorage.removeItem("amarianiUser");
+      closeMenu();
+    });
+
+    window.addEventListener("popstate", () => renderRoute(location.pathname, true));
+    updateSession();
+    renderRoute(location.pathname, true);
+  </script>
+</body>
+</html>
